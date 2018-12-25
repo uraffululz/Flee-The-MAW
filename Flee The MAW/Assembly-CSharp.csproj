@@ -59,7 +59,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\CameraController.cs" />
+    <Compile Include="Assets\PlayerMove.cs" />
     <Compile Include="Assets\Scripts\LevelBuilder.cs" />
+    <Compile Include="Assets\Watcher.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/Users/Master/Documents/Git Repositories/Unity Projects/FleeTheMAW/Flee The MAW/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>
