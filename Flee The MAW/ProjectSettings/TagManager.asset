@@ -6,6 +6,7 @@ TagManager:
   tags:
   - JumpPad
   - Platform
+  - RingParent
   layers:
   - Default
   - TransparentFX

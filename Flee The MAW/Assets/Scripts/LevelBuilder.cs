@@ -6,6 +6,7 @@ public class LevelBuilder : MonoBehaviour {
 
 	[SerializeField] GameObject spawner;
 
+	GameObject ringParent;
 	[SerializeField] GameObject[] platforms;
 	[SerializeField] GameObject basePlatform;
 	[SerializeField] GameObject fullWallPrefab;
@@ -32,13 +33,15 @@ public class LevelBuilder : MonoBehaviour {
 
 
 	void Update () {
-
+		if (ringParent.transform.position.y <= (transform.position.y - 4.5f)) {
+			SpawnRing();
+		}
 	}
 
 
 	void SpawnRing() {
 		howManyRingsSpawned++;
-		GameObject ringParent = new GameObject("RingParent" + howManyRingsSpawned);
+		ringParent = new GameObject("RingParent" + howManyRingsSpawned);
 		ringParent.transform.position = transform.position;
 
 		for (int i = 0; i <= 300; i += 15) {
@@ -85,5 +88,10 @@ public class LevelBuilder : MonoBehaviour {
 		ringParent.transform.Rotate(Vector3.up, -15 - (30 * howManyRingsSpawned));
 		transform.Rotate(Vector3.up, -transform.rotation.y);
 		spawner.transform.localPosition = Vector3.forward * -8.65f;
+
+		//ringParent.AddComponent<RingController>();
+		SphereCollider ringCol = ringParent.AddComponent<SphereCollider>();
+		ringCol.isTrigger = true;
+		ringParent.tag = "RingParent";
 	}
 }
