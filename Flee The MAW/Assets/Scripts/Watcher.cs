@@ -5,18 +5,19 @@ using UnityEngine;
 public class Watcher : MonoBehaviour {
 
 	[SerializeField] GameObject player;
+	PlayerMove pMove;
 
 	int moveSpeed = 50;
+	public float moveInput;
 
 	void Start () {
-		
+		pMove = player.GetComponent<PlayerMove>();
+
 	}
 
 
-	void LateUpdate () {
-		//Vector3 findPlayer = Vector3.RotateTowards(transform.forward, player.transform.position, 1, 1);
-		//transform.position = Vector3.up * player.transform.position.y;
-		Vector3 playerAngle = new Vector3(player.transform.position.x, 0, player.transform.position.z);
-		transform.LookAt(playerAngle);
+	void FixedUpdate () {
+		Vector3 watchPlayer = new Vector3(player.transform.position.x, 0, player.transform.position.z);
+		transform.LookAt(watchPlayer);
 	}
 }

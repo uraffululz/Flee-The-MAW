@@ -4,24 +4,30 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour {
 
+	[SerializeField] GameObject playerPivot;
 	[SerializeField] GameObject watcher;
+	Watcher watcherScript;
 
-	Rigidbody myRB;
+	public Rigidbody myRB;
 
 	int moveSpeed = 50;
 	public float moveInput;
 
-	Ray jumpRay;
+	bool allowJump = true;
+	public Ray jumpRay;
 	public RaycastHit canJump;
-	Ray forwardRay;
+	public Ray forwardRay;
 	public RaycastHit ranIntoSomething;
 
-	Vector3 standingScale = new Vector3(.75f, .75f, .75f);
-	Vector3 slideScale = new Vector3(.5f, .5f, .5f);
+	bool allowSlideOrRoll = true;
+	public Vector3 standingScale = new Vector3(.75f, .75f, .75f);
+	public Vector3 slideScale = new Vector3(.5f, .5f, .5f);
 
 
 	void Awake() {
 		myRB = GetComponent<Rigidbody>();
+
+		watcherScript = watcher.GetComponent<Watcher>();
 	}
 
 
@@ -36,45 +42,44 @@ public class PlayerMove : MonoBehaviour {
 		DetectForward();
 
 		MovePlayer();
-
 		Jump();
-
-		if (Input.GetKeyDown(KeyCode.LeftShift)) {
-			StartCoroutine("Slide");
+		if (Input.GetKeyDown(KeyCode.LeftShift) && allowSlideOrRoll) {
+			StartCoroutine("SlideOrRoll");
 		}
+
+
 	}
 
 	private void MovePlayer() {
 		if (Input.GetAxisRaw("Horizontal") != 0) {
 			if (ranIntoSomething.collider != null && canJump.collider == null) {
-				moveInput = 0;
+				//moveInput = 0;
+				allowSlideOrRoll = false;
 			}
 			else {
+				allowSlideOrRoll = true;
 				moveInput = -(moveSpeed * Input.GetAxisRaw("Horizontal") * Time.deltaTime);
-				transform.RotateAround(Vector3.zero, Vector3.up, moveInput);
 			}
-			//Rotate the player
-			transform.forward = (Vector3.up * transform.position.y) - transform.position;
-			transform.Rotate(transform.up, Mathf.Lerp(transform.rotation.y, -90 * moveInput, 1f), Space.Self);
 		}
 		else {
 			moveInput = 0;
 		}
-
-/*TODO Optimise raycasting (not sure about creating a "new" raycast every update)
-	*		Figure out the appropriate level of force to apply to the jumps
-	*/
+		//Rotate the player
+		//transform.RotateAround(watcher.transform.position, Vector3.up, watcherScript.moveInput);
+		playerPivot.transform.Rotate(Vector3.up, moveInput, Space.Self);
+		transform.localRotation = Quaternion.Euler(Vector3.up * (90 * moveInput));
 	}
 
-	private void Jump() {
-		jumpRay = new Ray(transform.position, Vector3.down);
 
-		if (Input.GetKeyDown(KeyCode.Space)) {
+	private void Jump() {
+		if (Input.GetKeyDown(KeyCode.Space) && allowJump) {
+			jumpRay = new Ray(transform.position, Vector3.down);
+
 			if (Physics.Raycast(jumpRay, out canJump, 1.1f)) {
 				Debug.Log(canJump.collider.tag);
 
 				if (canJump.collider.CompareTag("Platform")) {
-					myRB.AddForce(Vector3.up * 6f, ForceMode.Impulse);
+					myRB.AddForce(Vector3.up * 7f, ForceMode.Impulse);
 				}
 				else if (canJump.collider.CompareTag("JumpPad")) {
 					myRB.AddForce(Vector3.up * 10, ForceMode.Impulse);
@@ -84,13 +89,20 @@ public class PlayerMove : MonoBehaviour {
 		//Debug.DrawRay(transform.position, Vector3.down, Color.red);
 	}
 
-	IEnumerator	Slide () {
-		transform.localScale = slideScale;
-		myRB.AddForce(transform.forward * 10, ForceMode.Force);
 
-		yield return new WaitForSeconds(1.0f);
+	IEnumerator SlideOrRoll() {
+		allowJump = false;
+		allowSlideOrRoll = false;
+		transform.localScale = slideScale;
+		//pMove.myRB.AddForce(player.transform.forward * 10, ForceMode.Impulse);
+		//transform.RotateAround(gameObject.transform.position, Vector3.up, 
+		//	Mathf.Lerp(transform.rotation.y, transform.rotation.y + (moveInput * Time.deltaTime), 1f));
+
+		yield return new WaitForSeconds(.4f);
 
 		transform.localScale = standingScale;
+		allowJump = true;
+		allowSlideOrRoll = true;
 	}
 
 
